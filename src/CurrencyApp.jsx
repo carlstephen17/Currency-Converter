@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import "./assets/CurrencyApp.css";
-import currencies from "./data/Currencies";
+import currencies from "./data/Currencies.jsx";
+
 function CurrencyApp() {
     const [fromCurrency, setFromCurrency] = useState("");
     const [toCurrency, setToCurrency] = useState("");
     const [amount, setAmount] = useState("");
     const [result, setResult] = useState(null);
+    const [lastUpdate, setLastUpdate] = useState("");
+    const [nextUpdate, setNextUpdate] = useState("");
 
     /* original url
        https://open.er-api.com/v6/latest/USD
     */
-   
+
     async function handleCalculate() {
         if (!fromCurrency || !toCurrency || !amount) {
             alert("Please fill in all fields");
@@ -30,8 +33,17 @@ function CurrencyApp() {
                 return;
             }
 
+
             const converted = (parseFloat(amount) * rate).toFixed(2);
             setResult(`${amount} ${fromCurrency} = ${converted} ${toCurrency}`);
+
+            // Convert timestamps to local time
+            const last = new Date(data.time_last_update_unix * 1000).toLocaleString();
+            const next = new Date(data.time_next_update_unix * 1000).toLocaleString();
+
+            setLastUpdate(last);
+            setNextUpdate(next);
+
         } catch (error) {
             alert("Error fetching exchange rates");
             console.error(error);
@@ -69,6 +81,13 @@ function CurrencyApp() {
             </button>
 
             {result && <p className="result">{result}</p>}
+
+            {lastUpdate && nextUpdate && (
+                <div className="update-info">
+                    <p>Last Update: {lastUpdate}</p>
+                    <p>Next Update: {nextUpdate}</p>
+                </div>
+            )}
         </div>
     );
 }
